@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Classification Table</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            background: transparent;
+            color: #054607;
+            font-family: "Comfortaa", sans-serif;
+        }
+
+        /* Table styles */
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 10px;
+            font-size: 20px;
+            overflow: hidden;
+            background: transparent;
+        }
+
+        th, td {
+            border: 5px solid #498202;
+            padding: 20px;
+            color: #054607;
+            background: rgba(254, 255, 234);
+            border-radius: 5px; /* Rounded edges */
+        }
+
+        th {
+            background-color: #82A436;
+            color: white;
+            font-weight: bold;
+            text-align: left; /* Left align the header for the first column */
+        }
+
+        td {
+            text-align: left; /* Left align the content in the first column */
+        }
+
+        /* Center the header and content for YES and NO columns */
+        th:nth-child(2), th:nth-child(3),
+        td:nth-child(2), td:nth-child(3) {
+            text-align: center; /* Center the header and content for YES and NO columns */
+        }
+
+        td:hover {
+            background-color: #447804;
+            color: white;
+            cursor: pointer;
+        }
+
+        .bg-warning {
+            background-color: #498202;
+            color: white;
+        }
+
+        /* Centering and enlarging checkboxes */
+        .checkbox {
+            width: 30px; /* Width of the checkbox */
+            height: 30px; /* Height of the checkbox */
+            display: block; /* Make it a block element */
+            margin: 0 auto; /* Center the checkbox */
+        }
+    </style>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+
+    <script type="text/javascript">
+    $(document).ready(function() {
+        var sennaConditions = [
+            "Heart Disease",
+            "Chest Pain",
+            "Asthma",
+            "Diarrhea",
+            "Tuberculosis",
+            "Chickenpox",
+            "Measles",
+            "Dengue",
+            "Pneumonia",
+            "COVID-19",
+            "HIV",
+            "High Blood Pressure",
+            "Kidney Disease",
+            "Anemia",
+            "Malaria",
+            "G6PD"
+        ];
+
+        // Load data from local storage or initialize with default values
+        var savedSennaConditions = JSON.parse(localStorage.getItem('sennaUserHealthConditions')) || sennaConditions.map(condition => ({
+            condition: condition,
+            yesSelected: false,
+            noSelected: false
+        }));
+
+        var sennaTableContent = '<table class="table table-hover">';
+        sennaTableContent += '<thead><tr><th>CONDITION</th><th>YES</th><th>NO</th></tr></thead>';
+        sennaTableContent += '<tbody>';
+        
+        $.each(savedSennaConditions, function(index, item) {
+            sennaTableContent += `<tr>
+                                    <td><div class="row_senna_condition condition" edit_type="click" contenteditable="true">${item.condition}</div></td>
+                                    <td><input type="checkbox" class="checkbox senna-yes-checkbox" ${item.yesSelected ? 'checked' : ''} /></td>
+                                    <td><input type="checkbox" class="checkbox senna-no-checkbox" ${item.noSelected ? 'checked' : ''} /></td>
+                                </tr>`;
+        });
+        
+        sennaTableContent += '</tbody></table>';
+        
+        $('.tbl_senna_user_data').html(sennaTableContent);
+
+        // Editable functionality for the condition column
+        $(document).on('click', '.row_senna_condition', function(event) {
+            event.preventDefault(); 
+            if ($(this).attr('edit_type') == 'button') return false;
+            $(this).attr('contenteditable', 'true').addClass('bg-warning').focus();
+        });
+
+        $(document).on('focusout', '.row_senna_condition', function(event) {
+            event.preventDefault();
+            if ($(this).attr('edit_type') == 'button') return false;
+            $(this).removeClass('bg-warning');
+            saveSennaHealthData(); // Save data on focus out
+        });
+
+        // Save checkbox state and editable fields to local storage
+        function saveSennaHealthData() {
+            var sennaHealthDataToSave = [];
+            $('tbody tr').each(function() {
+                var condition = $(this).find('.condition').text();
+                var yesSelected = $(this).find('.senna-yes-checkbox').is(':checked');
+                var noSelected = $(this).find('.senna-no-checkbox').is(':checked');
+                sennaHealthDataToSave.push({ condition: condition, yesSelected: yesSelected, noSelected: noSelected });
+            });
+            localStorage.setItem('sennaUserHealthConditions', JSON.stringify(sennaHealthDataToSave));
+        }
+
+        // Change checkbox behavior for YES column
+        $(document).on('change', '.senna-yes-checkbox', function() {
+            saveSennaHealthData(); // Save data on change
+        });
+
+        // Change checkbox behavior for NO column
+        $(document).on('change', '.senna-no-checkbox', function() {
+            saveSennaHealthData(); // Save data on change
+        });
+    });
+    </script>
+
+</head>
+<body>
+    <div class="tbl_senna_user_data"></div>
+</body>
+</html>
